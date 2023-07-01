@@ -83,3 +83,29 @@ export const getSearchResults = async (breeds, ageMin, ageMax) => {
     console.error("Error:", error);
   }
 };
+
+export const getDogs = async (dogIds) => {
+  const endpoint = "/dogs";
+
+  const url = baseUrl + endpoint;
+
+  const requestOptions = {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(dogIds),
+  };
+  try {
+    const response = await fetch(url, requestOptions);
+    console.log(response);
+    const responseBody = await response.text();
+
+    // Convert the response body to an array
+    const data = JSON.parse(responseBody);
+    return data;
+  } catch (error) {
+    console.error("Error:", error);
+  }
+};
