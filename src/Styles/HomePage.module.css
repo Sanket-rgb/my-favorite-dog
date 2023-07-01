@@ -1,8 +1,35 @@
+.homepage__container > h5 {
+  text-align: center;
+
+  cursor: pointer;
+}
+.homepage__container > h5:hover {
+  color: rgba(0, 0, 0, 0.391);
+}
+
 .homepage__navbar {
   display: flex;
 
   justify-content: space-between;
-  background-color: pink;
+  background-color: rgb(37, 37, 37);
+
+  color: white;
+
+  padding: 0rem 0.5rem;
+}
+.homepage__filters {
+  display: flex;
+  flex-direction: column;
+}
+
+.homepage__filters > p {
+  margin: 0.5rem 0.5rem 0rem auto;
+
+  cursor: pointer;
+}
+
+.homepage__filters > p:hover {
+  color: rgba(0, 0, 0, 0.391);
 }
 
 .breeds__filter {
@@ -10,6 +37,8 @@
   gap: 0.5rem;
 
   flex-wrap: wrap;
+
+  padding: 1rem 0.5rem;
 }
 
 .breed {
@@ -21,4 +50,12 @@
   font-size: 10px;
 
   cursor: pointer;
+}
+.breedSelected {
+  background-color: rgb(109, 109, 247);
+}
+.dog_list__container {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr 1fr 1fr;
 }

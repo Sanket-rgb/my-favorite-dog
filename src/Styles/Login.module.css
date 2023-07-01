@@ -4,11 +4,52 @@
   align-items: center;
 
   height: 100vh;
+
+  background-image: url(/public/assets/dogs.jpeg);
+  background-size: cover;
+
+  color: white;
 }
 
 .form-container form {
   display: flex;
   flex-direction: column;
+  align-items: center;
 
-  gap: 1rem;
+  gap: 1.5rem;
+
+  background-color: rgb(39, 39, 39);
+  padding: 1.5rem 3rem;
+
+  border-radius: 10px;
+}
+
+.form-container input {
+  padding: 0.5rem 1rem;
+
+  border-radius: 5px;
+  border-style: none;
+
+  outline: none;
+}
+
+.form-container button {
+  border-radius: 5px;
+  border-style: none;
+
+  padding: 0.5rem 1rem;
+
+  cursor: pointer;
+
+  background-color: rgb(28, 129, 82);
+
+  width: 100%;
+}
+
+.form-container button:hover {
+  background-color: rgb(43, 183, 118);
+}
+
+.form-container h6 {
+  margin: 0;
 }

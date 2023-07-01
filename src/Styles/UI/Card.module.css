@@ -1,0 +1,42 @@
+.card {
+  margin: 1rem;
+  padding: 1rem;
+
+  background-color: white;
+  box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+    rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+
+  border-radius: 10px;
+
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: scale(1.03);
+}
+
+.card__content {
+  display: flex;
+  flex-direction: column;
+
+  gap: 1rem;
+}
+
+.card__content img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+
+  border-radius: 10px;
+}
+
+.card__content h4,
+.card__content h5 {
+  margin: 0;
+}
+
+.age__zip {
+  display: flex;
+  justify-content: space-between;
+}
