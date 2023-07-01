@@ -1,14 +1,27 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "../Styles/Login.module.css";
 
 function Login() {
-  const name = useRef("");
-  const email = useRef("");
+  const name = useRef();
+  const email = useRef();
+
+  const [error, setError] = useState();
 
   const navigate = useNavigate();
 
+  const checkFieldValidation = () => {
+    if (!name.current.value && !email.current.value) {
+      setError("Please enter name and email.");
+    } else if (name.current.value && !email.current.value) {
+      setError("Please enter email.");
+    } else if (!name.current.value && email.current.value) {
+      setError("Please enter name.");
+    }
+  };
+
   const handleSubmit = async (e) => {
+    checkFieldValidation();
     e.preventDefault();
     console.log(name.current.value, email.current.value);
 
@@ -40,12 +53,18 @@ function Login() {
       if (response.ok) {
         console.log("Login Successful");
         navigate(
-          "/home"
+          "/home",
+          {
+            state: {
+              name: name.current.value,
+            },
+          }
           // { replace: true }
         );
       }
     } catch (error) {
       console.error("Error:", error);
+      setError(error);
     }
   };
 
@@ -53,10 +72,20 @@ function Login() {
     <div className={styles["container"]}>
       <div className={styles["form-container"]}>
         <form onSubmit={handleSubmit}>
-          <label>Name</label>
-          <input type="text" ref={name}></input>
-          <label>Email</label>
-          <input type="email" ref={email}></input>
+          <label>Login</label>
+          <input
+            type="text"
+            ref={name}
+            placeholder="Name"
+            onChange={() => setError("")}
+          ></input>
+          <input
+            type="email"
+            ref={email}
+            placeholder="Email"
+            onChange={() => setError("")}
+          ></input>
+          {error && <h6>{error}</h6>}
           <button type="submit">Login</button>
         </form>
       </div>
