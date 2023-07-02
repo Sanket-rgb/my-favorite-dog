@@ -29,17 +29,12 @@ export const getDogBreeds = async () => {
 export const getSearchResults = async (breeds, ageMin, ageMax) => {
   const endpoint = "/dogs/search";
   console.log(breeds);
-  //   const queryParams = [];
-
-  //   if (breeds.length > 0) {
-  //     const breedsParam = `breeds=${breeds}`;
-  //     queryParams.push(breedsParam);
-  //   }
 
   // Construct the URLSearchParams object
   const params = new URLSearchParams();
 
   // Add the breeds array as a query parameter
+
   breeds.forEach((breed) => {
     params.append("breeds", breed);
     // queryParams.push(params);
@@ -80,7 +75,31 @@ export const getSearchResults = async (breeds, ageMin, ageMax) => {
     return data;
     // setBreeds(data);
   } catch (error) {
-    console.error("Error:", error);
+    console.log("Errorrrr:", error);
+  }
+};
+
+export const getNextPrevSearchResults = async (link) => {
+  const url = baseUrl + link;
+
+  const requestOptions = {
+    method: "GET",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+  };
+
+  try {
+    const response = await fetch(url, requestOptions);
+    const responseBody = await response.text();
+    // console.log(responseBody);
+    // Convert the response body to an array
+    const data = JSON.parse(responseBody);
+
+    return data;
+  } catch (error) {
+    console.log("Error: " + error);
   }
 };
 

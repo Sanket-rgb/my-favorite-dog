@@ -1,3 +1,8 @@
+.homepage__container {
+  display: flex;
+  flex-direction: column;
+}
+
 .homepage__container > h5 {
   text-align: center;
 
@@ -58,4 +63,33 @@
   display: grid;
 
   grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+.pagination__buttons {
+  display: flex;
+  place-self: center;
+}
+
+.pagination__buttons button {
+  margin: 1rem 0.5rem;
+  cursor: pointer;
+
+  /* padding: 1rem; */
+  width: 40px;
+  aspect-ratio: 1;
+  font-size: 20px;
+
+  background: grey;
+  border: none;
+
+  border-radius: 50%;
+
+  box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+    rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+}
+
+.pagination__buttons button:active {
+  /* Click effect styles */
+  background-color: #999;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
 }

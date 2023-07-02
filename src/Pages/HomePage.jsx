@@ -1,21 +1,59 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { getDogs, getSearchResults } from "../API/api";
+import {
+  getDogs,
+  getNextPrevSearchResults,
+  getSearchResults,
+} from "../API/api";
+import DivComponent from "../components/DivComponent";
 import Card from "../components/UI/Card";
 import styles from "../Styles/HomePage.module.css";
 function HomePage() {
   const [breeds, setBreeds] = useState([]);
   const [dogList, setDogList] = useState([]);
-  const [breedSelected, setBreedSelected] = useState(false);
   const [filterSection, setFilterSection] = useState(false);
+
+  const [nextLink, setNextLink] = useState("");
+  const [prevLink, setPrevLink] = useState("");
+
+  const [selectedBreeds, setSelectedBreeds] = useState(new Set());
+  const [selectedDogs, setSelectedDogs] = useState(new Set());
 
   const minAge = useRef("");
   const maxAge = useRef("");
 
-  const selectedBreeds = new Set();
+  // const selectedBreeds = new Set();
+  // const selectedDogs = new Set();
 
   const location = useLocation();
 
+  useEffect(() => {
+    const getInitialSearchResult = async () => {
+      await getSearchResults(
+        [...selectedBreeds],
+        minAge.current.value,
+        maxAge.current.value
+      ).then(async (response) => {
+        if (response.next) {
+          setNextLink(response.next);
+        } else {
+          setNextLink("");
+        }
+
+        if (response.prev) {
+          setPrevLink(response.prev);
+        } else {
+          setPrevLink("");
+        }
+
+        const dogList = await getDogs(response.resultIds);
+        console.log(dogList);
+        setDogList(dogList);
+      });
+    };
+
+    getInitialSearchResult();
+  }, []);
   useEffect(() => {
     async function fetchData() {
       const baseUrl = "https://frontend-take-home-service.fetch.com";
@@ -49,13 +87,21 @@ function HomePage() {
   const handleBreedSelection = (breed) => {
     if (selectedBreeds.has(breed)) {
       selectedBreeds.delete(breed);
-      // setBreedSelected(false);
     } else {
       selectedBreeds.add(breed);
-      // setBreedSelected(true);
     }
-
+    setSelectedBreeds(selectedBreeds);
     console.log(selectedBreeds);
+  };
+
+  const selectDog = (id) => {
+    if (selectedDogs.has(id)) {
+      selectedDogs.delete(id);
+    } else {
+      selectedDogs.add(id);
+    }
+    setSelectedDogs(selectedDogs);
+    console.log(selectedDogs);
   };
 
   const getSearchResult = async () => {
@@ -67,31 +113,46 @@ function HomePage() {
     const breedsArray = [...selectedBreeds];
     // console.log(breedsArray);
 
-    const result = await getSearchResults(breedsArray, ageMin, ageMax).then(
+    await getSearchResults(breedsArray, ageMin, ageMax).then(
       async (response) => {
+        console.log(response);
+        if (response.next) {
+          setNextLink(response.next);
+        } else {
+          setNextLink("");
+        }
+
+        if (response.prev) {
+          setPrevLink(response.prev);
+        } else {
+          setPrevLink("");
+        }
         const dogList = await getDogs(response.resultIds);
         console.log(dogList);
         setDogList(dogList);
       }
     );
-    console.log(result);
   };
 
-  useEffect(() => {
-    const getInitialSearchResult = async () => {
-      await getSearchResults(
-        [...selectedBreeds],
-        minAge.current.value,
-        maxAge.current.value
-      ).then(async (response) => {
-        const dogList = await getDogs(response.resultIds);
-        console.log(dogList);
-        setDogList(dogList);
-      });
-    };
+  const getNextPrevResults = async (link) => {
+    await getNextPrevSearchResults(link).then(async (response) => {
+      console.log(response);
+      if (response.next) {
+        setNextLink(response.next);
+      } else {
+        setNextLink("");
+      }
 
-    getInitialSearchResult();
-  }, []);
+      if (response.prev) {
+        setPrevLink(response.prev);
+      } else {
+        setPrevLink("");
+      }
+      const dogList = await getDogs(response.resultIds);
+      console.log(dogList);
+      setDogList(dogList);
+    });
+  };
 
   return (
     <main className={styles["homepage__container"]}>
@@ -146,30 +207,28 @@ function HomePage() {
             img={dog.img}
             breed={dog.breed}
             zip_code={dog.zip_code}
+            onClick={() => selectDog(dog.id)}
+            isSelected={selectedDogs.has(dog.id)}
           />
         ))}
       </section>
+      <div className={styles["pagination__buttons"]}>
+        <button
+          onClick={() => getNextPrevResults(prevLink)}
+          style={{ backgroundColor: prevLink === "" ? "" : "white" }}
+          disabled={prevLink === "" ? true : false}
+        >
+          {"<"}
+        </button>
+        <button
+          onClick={() => getNextPrevResults(nextLink)}
+          style={{ backgroundColor: nextLink === "" ? "" : "white" }}
+          disabled={nextLink === "" ? true : false}
+        >
+          {">"}
+        </button>
+      </div>
     </main>
-  );
-}
-
-function DivComponent({ breed, onClick }) {
-  const [selected, setSelected] = useState(false);
-
-  const handleClick = () => {
-    setSelected(!selected);
-    onClick();
-  };
-
-  return (
-    <div
-      className={`${styles["breed"]}
-    ${styles[selected ? "breedSelected" : ""]}
-    `}
-      onClick={handleClick}
-    >
-      {breed}
-    </div>
   );
 }
 
