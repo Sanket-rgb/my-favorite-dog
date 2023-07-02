@@ -26,7 +26,7 @@ export const getDogBreeds = async () => {
   }
 };
 
-export const getSearchResults = async (breeds, ageMin, ageMax) => {
+export const getSearchResults = async (breeds, ageMin, ageMax, sort) => {
   const endpoint = "/dogs/search";
   console.log(breeds);
 
@@ -34,11 +34,12 @@ export const getSearchResults = async (breeds, ageMin, ageMax) => {
   const params = new URLSearchParams();
 
   // Add the breeds array as a query parameter
-
-  breeds.forEach((breed) => {
-    params.append("breeds", breed);
-    // queryParams.push(params);
-  });
+  if (breeds.length > 0) {
+    breeds.forEach((breed) => {
+      params.append("breeds", breed);
+      // queryParams.push(params);
+    });
+  }
 
   // Add ageMin query parameter if available
   if (ageMin !== "") {
@@ -52,6 +53,11 @@ export const getSearchResults = async (breeds, ageMin, ageMax) => {
     params.append("ageMax", +ageMax);
   }
 
+  if (sort === "desc") {
+    params.append("sort", "breed:desc");
+  } else {
+    params.append("sort", "breed:asc");
+  }
   // Construct the final URL with query parameters
   const url = `${baseUrl + endpoint}?${params}`;
 
@@ -126,5 +132,31 @@ export const getDogs = async (dogIds) => {
     return data;
   } catch (error) {
     console.error("Error:", error);
+  }
+};
+
+export const generateDogMatch = async (ids) => {
+  const endpoint = "/dogs/match";
+
+  const url = baseUrl + endpoint;
+
+  const requestOptions = {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(ids),
+  };
+
+  try {
+    const response = await fetch(url, requestOptions);
+    const responseBody = await response.text();
+
+    const data = JSON.parse(responseBody);
+    // console.log(data);
+    return data;
+  } catch (error) {
+    console.log("Error:" + error);
   }
 };

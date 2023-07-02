@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import {
+  generateDogMatch,
   getDogs,
   getNextPrevSearchResults,
   getSearchResults,
@@ -13,11 +14,16 @@ function HomePage() {
   const [dogList, setDogList] = useState([]);
   const [filterSection, setFilterSection] = useState(false);
 
+  const [sortOrder, setSortOrder] = useState("asc");
+
   const [nextLink, setNextLink] = useState("");
   const [prevLink, setPrevLink] = useState("");
 
   const [selectedBreeds, setSelectedBreeds] = useState(new Set());
   const [selectedDogs, setSelectedDogs] = useState(new Set());
+
+  const [showMatch, setShowMatch] = useState(false);
+  const [matchedDogInfo, setMatchedDogInfo] = useState();
 
   const minAge = useRef("");
   const maxAge = useRef("");
@@ -30,10 +36,12 @@ function HomePage() {
   useEffect(() => {
     const getInitialSearchResult = async () => {
       await getSearchResults(
-        [...selectedBreeds],
+        [],
         minAge.current.value,
-        maxAge.current.value
+        maxAge.current.value,
+        sortOrder
       ).then(async (response) => {
+        console.log(response);
         if (response.next) {
           setNextLink(response.next);
         } else {
@@ -85,23 +93,37 @@ function HomePage() {
   }, []);
 
   const handleBreedSelection = (breed) => {
-    if (selectedBreeds.has(breed)) {
-      selectedBreeds.delete(breed);
+    const updatedSelectedBreeds = new Set(selectedBreeds);
+    if (updatedSelectedBreeds.has(breed)) {
+      updatedSelectedBreeds.delete(breed);
     } else {
-      selectedBreeds.add(breed);
+      updatedSelectedBreeds.add(breed);
     }
-    setSelectedBreeds(selectedBreeds);
+    setSelectedBreeds(updatedSelectedBreeds);
     console.log(selectedBreeds);
   };
 
   const selectDog = (id) => {
-    if (selectedDogs.has(id)) {
-      selectedDogs.delete(id);
+    const updatedSelectedDogs = new Set(selectedDogs);
+    if (updatedSelectedDogs.has(id)) {
+      updatedSelectedDogs.delete(id);
     } else {
-      selectedDogs.add(id);
+      updatedSelectedDogs.add(id);
     }
-    setSelectedDogs(selectedDogs);
-    console.log(selectedDogs);
+    setSelectedDogs(updatedSelectedDogs);
+  };
+
+  const generateMatch = async (ids) => {
+    console.log(ids);
+
+    await generateDogMatch(ids).then(async (response) => {
+      console.log(response.match);
+      const dogList = await getDogs([response.match]);
+      console.log(dogList);
+      setMatchedDogInfo(dogList);
+    });
+    setSelectedDogs(new Set());
+    setShowMatch(true);
   };
 
   const getSearchResult = async () => {
@@ -113,7 +135,7 @@ function HomePage() {
     const breedsArray = [...selectedBreeds];
     // console.log(breedsArray);
 
-    await getSearchResults(breedsArray, ageMin, ageMax).then(
+    await getSearchResults(breedsArray, ageMin, ageMax, sortOrder).then(
       async (response) => {
         console.log(response);
         if (response.next) {
@@ -154,6 +176,10 @@ function HomePage() {
     });
   };
 
+  const handleOrderChange = (e) => {
+    setSortOrder(e.target.value);
+  };
+
   return (
     <main className={styles["homepage__container"]}>
       <header className={styles["homepage__navbar"]}>
@@ -173,11 +199,16 @@ function HomePage() {
                   key={breed}
                   onClick={() => handleBreedSelection(breed)}
                   breed={breed}
+                  isSelected={selectedBreeds.has(breed)}
                 />
               );
             })}
           </div>
           <div className={styles["inputs"]}>
+            <select value={sortOrder} onChange={handleOrderChange}>
+              <option value="asc">Ascending</option>
+              <option value="desc">Descending</option>
+            </select>
             <input
               type="number"
               placeholder="Enter minimum age"
@@ -197,6 +228,31 @@ function HomePage() {
             </button>
           </div>
         </section>
+      )}
+      <div>
+        <h4>{selectedDogs.size} dogs selected</h4>
+        <button
+          disabled={selectedDogs.size === 0}
+          onClick={() => generateMatch([...selectedDogs])}
+        >
+          Generate match
+        </button>
+      </div>
+      {showMatch && (
+        <div className={styles["match__overlay"]}>
+          <div className={styles["card__container"]}>
+            <p>Match found!</p>
+            <Card
+              name={matchedDogInfo[0].name}
+              age={matchedDogInfo[0].age}
+              img={matchedDogInfo[0].img}
+              breed={matchedDogInfo[0].breed}
+              zip_code={matchedDogInfo[0].zip_code}
+              onClick={() => setShowMatch(false)}
+              isSelected={false}
+            />
+          </div>
+        </div>
       )}
       <section className={styles["dog_list__container"]}>
         {dogList?.map((dog) => (
