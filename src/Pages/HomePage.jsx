@@ -1,15 +1,17 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import {
   generateDogMatch,
   getDogs,
   getNextPrevSearchResults,
   getSearchResults,
 } from "../API/api";
+import { logout } from "../API/Authentication/auth";
 import DivComponent from "../components/DivComponent";
 import Card from "../components/UI/Card";
 import styles from "../Styles/HomePage.module.css";
 function HomePage() {
+  const navigate = useNavigate();
   const [breeds, setBreeds] = useState([]);
   const [dogList, setDogList] = useState([]);
   const [filterSection, setFilterSection] = useState(false);
@@ -180,11 +182,16 @@ function HomePage() {
     setSortOrder(e.target.value);
   };
 
+  const handleLogout = async () => {
+    const response = await logout();
+    console.log(response);
+    navigate("/", { replace: true });
+  };
   return (
     <main className={styles["homepage__container"]}>
       <header className={styles["homepage__navbar"]}>
         <h2>Welcome, {location.state.name}</h2>
-        <h4>Logout</h4>
+        <h4 onClick={handleLogout}>Logout</h4>
       </header>
       {!filterSection && (
         <h5 onClick={() => setFilterSection(true)}>Filter options</h5>
