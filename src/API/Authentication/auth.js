@@ -1,27 +1,38 @@
-const baseUrl = "https://frontend-take-home-service.fetch.com";
+import { baseUrl, loginEndpoint, logoutEndpoint } from "../endpoints";
+export const login = async (params) => {
+  const url = baseUrl + loginEndpoint;
 
-export const logout = async () => {
-  const endpoint = "/auth/logout";
-
-  const url = baseUrl + endpoint;
+  const LoginData = { name: params.name, email: params.email };
 
   const requestOptions = {
-    // method: "POST",
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(LoginData),
+  };
+
+  try {
+    const response = await fetch(url, requestOptions);
+    return response;
+  } catch (error) {
+    window.alert("Error:" + error);
+  }
+};
+
+export const logout = async () => {
+  const url = baseUrl + logoutEndpoint;
+
+  const requestOptions = {
+    method: "POST",
     credentials: "include",
   };
 
   try {
     const response = await fetch(url, requestOptions);
-    console.log(response);
     return response;
-    // if (response.ok) {
-    //   console.log("Login Successful");
-    //   navigate("/login", {
-
-    //     replace: true,
-    //   });
-    // }
   } catch (error) {
-    console.error("Error:", error);
+    window.alert("Error:" + error);
   }
 };

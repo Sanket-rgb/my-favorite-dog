@@ -30,9 +30,6 @@ function HomePage() {
   const minAge = useRef("");
   const maxAge = useRef("");
 
-  // const selectedBreeds = new Set();
-  // const selectedDogs = new Set();
-
   const location = useLocation();
 
   useEffect(() => {
@@ -184,8 +181,12 @@ function HomePage() {
 
   const handleLogout = async () => {
     const response = await logout();
-    console.log(response);
-    navigate("/", { replace: true });
+
+    if (response.ok) {
+      navigate("/", { replace: true });
+    } else {
+      window.alert("Error : Status Code " + response.status);
+    }
   };
   return (
     <main className={styles["homepage__container"]}>

@@ -1,67 +1,56 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { login } from "../API/Authentication/auth";
 import styles from "../Styles/Login.module.css";
 
 function Login() {
-  const name = useRef();
-  const email = useRef();
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [usernameError, setUsernameError] = useState("");
+  const [emailError, setEmailError] = useState("");
 
-  const [error, setError] = useState();
-
-  const navigate = useNavigate();
-
-  const checkFieldValidation = () => {
-    if (!name.current.value && !email.current.value) {
-      setError("Please enter name and email.");
-    } else if (name.current.value && !email.current.value) {
-      setError("Please enter email.");
-    } else if (!name.current.value && email.current.value) {
-      setError("Please enter name.");
+  const validateUsername = () => {
+    if (!username) {
+      setUsernameError("Username is required.");
+    } else {
+      setUsernameError("");
     }
   };
 
+  const validateEmail = () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!email) {
+      setEmailError("Email is required.");
+    } else if (!emailRegex.test(email)) {
+      setEmailError("Please enter a valid email address.");
+    } else {
+      setEmailError("");
+    }
+  };
+
+  const navigate = useNavigate();
+
   const handleSubmit = async (e) => {
-    checkFieldValidation();
+    validateUsername();
+    validateEmail();
     e.preventDefault();
-    console.log(name.current.value, email.current.value);
 
-    const baseUrl = "https://frontend-take-home-service.fetch.com";
-    const endpoint = "/auth/login";
-
-    const url = baseUrl + endpoint;
-
-    const LoginData = { name: name.current.value, email: email.current.value };
-
-    const requestOptions = {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(LoginData),
+    const params = {
+      name: username,
+      email,
     };
+    const response = await login(params);
 
-    try {
-      const response = await fetch(url, requestOptions);
-      console.log(response);
-      //   console.log(response.headers.get("Set-Cookie"));
-
-      //   const authToken = response.headers.get("Set-Cookie");
-      //   if (authToken && authToken.includes("fetch-access-token")) {
-      //     console.log("Auth token:", authToken);
-      //   }
-      if (response.ok) {
-        console.log("Login Successful");
-        navigate("/home", {
-          state: {
-            name: name.current.value,
-          },
-          replace: true,
-        });
-      }
-    } catch (error) {
-      console.error("Error:", error);
-      setError(error);
+    if (response.ok) {
+      navigate("/home", {
+        state: {
+          name: username,
+        },
+        replace: true,
+      });
+    } else {
+      window.alert("Error : Status Code " + response.status);
     }
   };
 
@@ -70,19 +59,25 @@ function Login() {
       <div className={styles["form-container"]}>
         <form onSubmit={handleSubmit}>
           <label>Login</label>
+
           <input
             type="text"
-            ref={name}
-            placeholder="Name"
-            onChange={() => setError("")}
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            onBlur={validateUsername}
           ></input>
+          {usernameError && <h6 className="error">{usernameError}</h6>}
+
           <input
-            type="email"
-            ref={email}
+            type="text"
             placeholder="Email"
-            onChange={() => setError("")}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            onBlur={validateEmail}
           ></input>
-          {error && <h6>{error}</h6>}
+          {emailError && <h6 className="error">{emailError}</h6>}
+
           <button type="submit">Login</button>
         </form>
       </div>
