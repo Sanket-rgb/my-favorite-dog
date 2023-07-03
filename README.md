@@ -1,4 +1,4 @@
-<div align='center'><img style="width:30%" src='public/assets/fetch-logo.png'/></div>
+<div align='center'><img style="width:30%" src='https://asset.brandfetch.io/id7Cm60rQf/idtcRUhiRz.png'/></div>
 
 <h2>About the project</h2>
 
