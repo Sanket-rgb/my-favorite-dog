@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   generateDogMatch,
   getDogs,
@@ -7,7 +7,7 @@ import {
   getSearchResults,
 } from "../API/api";
 import { logout } from "../API/Authentication/auth";
-import DivComponent from "../components/DivComponent";
+import Breed from "../components/Breed";
 import Card from "../components/UI/Card";
 import styles from "../Styles/HomePage.module.css";
 function HomePage() {
@@ -202,7 +202,7 @@ function HomePage() {
           <div className={styles["breeds__filter"]}>
             {breeds?.map((breed) => {
               return (
-                <DivComponent
+                <Breed
                   key={breed}
                   onClick={() => handleBreedSelection(breed)}
                   breed={breed}

@@ -52,15 +52,12 @@ function Login() {
       //   }
       if (response.ok) {
         console.log("Login Successful");
-        navigate(
-          "/home",
-          {
-            state: {
-              name: name.current.value,
-            },
-          }
-          // { replace: true }
-        );
+        navigate("/home", {
+          state: {
+            name: name.current.value,
+          },
+          replace: true,
+        });
       }
     } catch (error) {
       console.error("Error:", error);

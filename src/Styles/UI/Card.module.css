@@ -12,6 +12,10 @@
   transition: all 0.2s ease-in-out;
 }
 
+.cardSelected {
+  background-color: rgb(109, 109, 247);
+}
+
 .card:hover {
   transform: scale(1.03);
 }
@@ -34,6 +38,7 @@
 .card__content h4,
 .card__content h5 {
   margin: 0;
+  font-size: 1.4vw;
 }
 
 .age__zip {
