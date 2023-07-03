@@ -2,7 +2,7 @@
 
 <h2>About the project</h2>
 
-  <p>A dog adoption website <b>"Fetch - Dog App"</b> is an online platform that lists variety of dogs based on breeds, age and location. You can choose your favorite dogs to generate a match for you!</p>
+  <p>A dog adoption website <b>"Fetch - Dog App"</b> is an online platform that lists variety of dogs based on breed, age and location. You can choose your favorite dogs to generate a match for you!</p>
 
 👉 Live Demo: <a href='https://fetch-dogapp.netlify.app/'>Live Demo</a>
 
