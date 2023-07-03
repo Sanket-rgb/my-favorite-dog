@@ -17,7 +17,7 @@
   transform: scale(1.03);
 }
 
-.card_selected {
+.card__selected {
   background-color: rgb(43, 183, 118);
 }
 
