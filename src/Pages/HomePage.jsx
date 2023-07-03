@@ -1,4 +1,5 @@
 import React, { useEffect, useReducer, useRef, useState } from "react";
+import { ACTIONS, initialState, reducer } from "../Reducer";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   generateDogMatch,
@@ -7,11 +8,18 @@ import {
   getNextPrevSearchResults,
   getSearchResults,
 } from "../API/api";
+
 import { logout } from "../API/Authentication/auth";
 import Breed from "../components/Breed";
 import Card from "../components/UI/Card";
-import { ACTIONS, initialState, reducer } from "../Reducer";
 import styles from "../Styles/HomePage.module.css";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Cancel,
+  ExpandMore,
+  PowerSettingsNew,
+} from "@mui/icons-material";
 
 function HomePage() {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -19,6 +27,7 @@ function HomePage() {
   const { breeds, dogList, filterSection, nextLink, prevLink } = state;
 
   const [sortOrder, setSortOrder] = useState("asc");
+  const [sortBy, setSortBy] = useState("breed");
   const [showMatch, setShowMatch] = useState(false);
   const [matchedDogInfo, setMatchedDogInfo] = useState(null);
 
@@ -55,7 +64,8 @@ function HomePage() {
         [],
         minAge.current.value,
         maxAge.current.value,
-        sortOrder
+        sortOrder,
+        sortBy
       );
 
       dispatch({
@@ -78,7 +88,7 @@ function HomePage() {
     };
 
     getInitialSearchResult();
-  }, [sortOrder]);
+  }, [sortOrder, sortBy]);
 
   const handleBreedSelection = (breed) => {
     const updatedSelectedBreeds = new Set(selectedBreeds);
@@ -123,7 +133,7 @@ function HomePage() {
     const ageMax = maxAge.current.value;
     const breedsArray = [...selectedBreeds];
 
-    await getSearchResults(breedsArray, ageMin, ageMax, sortOrder).then(
+    await getSearchResults(breedsArray, ageMin, ageMax, sortOrder, sortBy).then(
       async (response) => {
         console.log(response);
 
@@ -176,6 +186,9 @@ function HomePage() {
     setSortOrder(e.target.value);
   };
 
+  const handleSortBy = (e) => {
+    setSortBy(e.target.value);
+  };
   const handleLogout = async () => {
     const response = await logout();
 
@@ -197,32 +210,62 @@ function HomePage() {
     <div className={styles["homepage__container"]}>
       <header className={styles["homepage__navbar"]}>
         <h2>Welcome, {location.state.name}</h2>
-        <h4 onClick={handleLogout}>Logout</h4>
+        <div>
+          <PowerSettingsNew
+            className={styles["logout_icon"]}
+            onClick={handleLogout}
+          />
+          <h5>Logout</h5>
+        </div>
       </header>
 
       {!filterSection && (
-        <h5 onClick={() => showHideFilterSection(true)}>Filter options</h5>
+        <div className={styles["filter__dropdown_container"]}>
+          <div
+            className={styles["filter__dropdown"]}
+            onClick={() => showHideFilterSection(true)}
+          >
+            <h5>Filter options</h5>
+            <ExpandMore style={{ cursor: "pointer" }} />
+          </div>
+        </div>
       )}
       {filterSection && (
         <section className={styles["homepage__filters"]}>
-          <p onClick={() => showHideFilterSection(false)}>close</p>
-          <div className={styles["breeds__filter"]}>
-            {breeds?.map((breed) => {
-              return (
-                <Breed
-                  key={breed}
-                  onClick={() => handleBreedSelection(breed)}
-                  breed={breed}
-                  isSelected={selectedBreeds.has(breed)}
-                />
-              );
-            })}
+          <div className={styles["showhide__filter"]}>
+            <h2>Apply Filters</h2>
+            <Cancel
+              onClick={() => showHideFilterSection(false)}
+              className={styles["close__filter"]}
+            />
+          </div>
+
+          <div className={styles["breeds__container"]}>
+            <h4>Select breeds:</h4>
+            <div className={styles["breeds__filter"]}>
+              {breeds?.map((breed) => {
+                return (
+                  <Breed
+                    key={breed}
+                    onClick={() => handleBreedSelection(breed)}
+                    breed={breed}
+                    isSelected={selectedBreeds.has(breed)}
+                  />
+                );
+              })}
+            </div>
           </div>
           <div className={styles["inputs"]}>
+            <select value={sortBy} onChange={handleSortBy}>
+              <option value="breed">Breed (default)</option>
+              <option value="name">Name</option>
+              <option value="age">Age</option>
+            </select>
             <select value={sortOrder} onChange={handleOrderChange}>
-              <option value="asc">Ascending</option>
+              <option value="asc">Ascending (default)</option>
               <option value="desc">Descending</option>
             </select>
+
             <input
               type="number"
               placeholder="Enter minimum age"
@@ -243,19 +286,28 @@ function HomePage() {
           </div>
         </section>
       )}
-      <div>
-        <h4>{selectedDogs.size} dogs selected</h4>
-        <button
-          disabled={selectedDogs.size === 0}
-          onClick={() => generateMatch([...selectedDogs])}
-        >
-          Generate match
-        </button>
-      </div>
+      {!filterSection && !showMatch && (
+        <div className={styles["match_section"]}>
+          <h4>{selectedDogs.size} dogs selected</h4>
+          <button
+            disabled={selectedDogs.size === 0}
+            onClick={() => generateMatch([...selectedDogs])}
+          >
+            Generate match
+          </button>
+        </div>
+      )}
       {showMatch && (
         <div className={styles["match__overlay"]}>
           <div className={styles["card__container"]}>
-            <p>Match found!</p>
+            <section>
+              <p>Match found!</p>
+              <Cancel
+                onClick={() => setShowMatch(false)}
+                className={styles["close__filter"]}
+              />
+            </section>
+
             <Card
               name={matchedDogInfo[0].name}
               age={matchedDogInfo[0].age}
@@ -268,36 +320,38 @@ function HomePage() {
           </div>
         </div>
       )}
-      <section className={styles["dog_list__container"]}>
-        {dogList?.map((dog) => (
-          <Card
-            key={dog.id}
-            name={dog.name}
-            age={dog.age}
-            img={dog.img}
-            breed={dog.breed}
-            zip_code={dog.zip_code}
-            onClick={() => selectDog(dog.id)}
-            isSelected={selectedDogs.has(dog.id)}
-          />
-        ))}
-      </section>
-      <div className={styles["pagination__buttons"]}>
-        <button
-          onClick={() => getNextPrevResults(prevLink)}
-          style={{ backgroundColor: prevLink === "" ? "" : "white" }}
-          disabled={prevLink === "" ? true : false}
-        >
-          {"<"}
-        </button>
-        <button
-          onClick={() => getNextPrevResults(nextLink)}
-          style={{ backgroundColor: nextLink === "" ? "" : "white" }}
-          disabled={nextLink === "" ? true : false}
-        >
-          {">"}
-        </button>
-      </div>
+      {!filterSection && !showMatch && (
+        <section className={styles["dog_list__container"]}>
+          {dogList?.map((dog) => (
+            <Card
+              key={dog.id}
+              name={dog.name}
+              age={dog.age}
+              img={dog.img}
+              breed={dog.breed}
+              zip_code={dog.zip_code}
+              onClick={() => selectDog(dog.id)}
+              isSelected={selectedDogs.has(dog.id)}
+            />
+          ))}
+        </section>
+      )}
+      {!filterSection && !showMatch && (
+        <div className={styles["pagination__buttons"]}>
+          <button
+            onClick={() => getNextPrevResults(prevLink)}
+            disabled={prevLink === "" ? true : false}
+          >
+            {<ArrowLeft style={{ fontSize: "40px" }} />}
+          </button>
+          <button
+            onClick={() => getNextPrevResults(nextLink)}
+            disabled={nextLink === "" ? true : false}
+          >
+            {<ArrowRight style={{ fontSize: "40px" }} />}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

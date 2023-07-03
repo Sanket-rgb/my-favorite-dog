@@ -1,20 +1,32 @@
 import styles from "../../Styles/UI/Card.module.css";
+
+import PetsIcon from "@mui/icons-material/Pets";
+import { LocationOn } from "@mui/icons-material";
 function Card(props) {
   return (
     <div
       className={`${styles["card"]}
-    ${styles[props.isSelected ? "cardSelected" : ""]}
+    ${styles[props.isSelected ? "card__selected" : ""]}
     `}
       onClick={props.onClick}
     >
       <div className={styles["card__content"]}>
         <img src={props.img} alt={props.breed} />
-        <h4>
-          Name: {props.name} ({props.breed})
-        </h4>
-        <div className={styles["age__zip"]}>
-          <h5>Age: {props.age}</h5>
-          <h5>Location: {props.zip_code}</h5>
+        <div className={styles["dog__info"]}>
+          <div className={styles["dog__age"]}>
+            {<PetsIcon />}
+            <h5>
+              {props.name} ({props.breed})
+            </h5>
+          </div>
+
+          <div className={styles["age__zip"]}>
+            <h3>{props.age} yrs</h3>
+            <div>
+              {<LocationOn />}
+              <h5>{props.zip_code}</h5>
+            </div>
+          </div>
         </div>
       </div>
     </div>

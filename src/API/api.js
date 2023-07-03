@@ -95,7 +95,7 @@ export const generateDogMatch = async (ids) => {
   }
 };
 
-export const getSearchResults = async (breeds, ageMin, ageMax, sort) => {
+export const getSearchResults = async (breeds, ageMin, ageMax, sort, field) => {
   console.log(breeds);
 
   const params = new URLSearchParams();
@@ -119,9 +119,9 @@ export const getSearchResults = async (breeds, ageMin, ageMax, sort) => {
 
   // Add sort option with field name
   if (sort === "desc") {
-    params.append("sort", "breed:desc");
+    params.append("sort", `${field}:desc`);
   } else {
-    params.append("sort", "breed:asc");
+    params.append("sort", `${field}:asc`);
   }
   // Construct the final URL with query parameters
   const url = `${baseUrl + dogsSearchEndpoint}?${params}`;

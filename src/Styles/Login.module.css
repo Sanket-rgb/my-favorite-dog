@@ -1,4 +1,4 @@
-.container {
+.login__container {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -11,7 +11,7 @@
   color: white;
 }
 
-.form-container form {
+.login__container_form form {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -24,7 +24,7 @@
   border-radius: 10px;
 }
 
-.form-container input {
+.login__container_form input {
   padding: 0.5rem 1rem;
 
   border-radius: 5px;
@@ -33,7 +33,7 @@
   outline: none;
 }
 
-.form-container button {
+.login__container_form button {
   border-radius: 5px;
   border-style: none;
 
@@ -46,10 +46,10 @@
   width: 100%;
 }
 
-.form-container button:hover {
+.login__container_form button:hover {
   background-color: rgb(43, 183, 118);
 }
 
-.form-container h6 {
+.login__container_form h6 {
   margin: 0;
 }

@@ -55,8 +55,8 @@ function Login() {
   };
 
   return (
-    <div className={styles["container"]}>
-      <div className={styles["form-container"]}>
+    <div className={styles["login__container"]}>
+      <div className={styles["login__container_form"]}>
         <form onSubmit={handleSubmit}>
           <label>Login</label>
 
