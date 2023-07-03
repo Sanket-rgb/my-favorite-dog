@@ -1,98 +1,84 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import React, { useEffect, useReducer, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   generateDogMatch,
   getDogs,
+  getDogsBreeds,
   getNextPrevSearchResults,
   getSearchResults,
 } from "../API/api";
 import { logout } from "../API/Authentication/auth";
-import DivComponent from "../components/DivComponent";
+import Breed from "../components/Breed";
 import Card from "../components/UI/Card";
+import { ACTIONS, initialState, reducer } from "../Reducer";
 import styles from "../Styles/HomePage.module.css";
+
 function HomePage() {
-  const navigate = useNavigate();
-  const [breeds, setBreeds] = useState([]);
-  const [dogList, setDogList] = useState([]);
-  const [filterSection, setFilterSection] = useState(false);
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  const { breeds, dogList, filterSection, nextLink, prevLink } = state;
 
   const [sortOrder, setSortOrder] = useState("asc");
-
-  const [nextLink, setNextLink] = useState("");
-  const [prevLink, setPrevLink] = useState("");
+  const [showMatch, setShowMatch] = useState(false);
+  const [matchedDogInfo, setMatchedDogInfo] = useState(null);
 
   const [selectedBreeds, setSelectedBreeds] = useState(new Set());
   const [selectedDogs, setSelectedDogs] = useState(new Set());
 
-  const [showMatch, setShowMatch] = useState(false);
-  const [matchedDogInfo, setMatchedDogInfo] = useState();
-
   const minAge = useRef("");
   const maxAge = useRef("");
 
-  // const selectedBreeds = new Set();
-  // const selectedDogs = new Set();
-
+  const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
+    async function fetchDogBreeds() {
+      const response = await getDogsBreeds();
+      if (response.ok) {
+        const responseBody = await response.text();
+        const breeds = JSON.parse(responseBody);
+
+        dispatch({
+          type: ACTIONS.SET_BREEDS_LIST,
+          payload: breeds,
+        });
+      } else {
+        window.alert("Error : Status Code " + response.status);
+      }
+    }
+    fetchDogBreeds();
+  }, []);
+
+  useEffect(() => {
     const getInitialSearchResult = async () => {
-      await getSearchResults(
+      const response = await getSearchResults(
         [],
         minAge.current.value,
         maxAge.current.value,
         sortOrder
-      ).then(async (response) => {
-        console.log(response);
-        if (response.next) {
-          setNextLink(response.next);
-        } else {
-          setNextLink("");
-        }
+      );
 
-        if (response.prev) {
-          setPrevLink(response.prev);
-        } else {
-          setPrevLink("");
-        }
+      dispatch({
+        type: ACTIONS.SET_NEXT_LINK,
+        payload: response.next ? response.next : "",
+      });
 
-        const dogList = await getDogs(response.resultIds);
-        console.log(dogList);
-        setDogList(dogList);
+      dispatch({
+        type: ACTIONS.SET_PREV_LINK,
+        payload: response.prev ? response.prev : "",
+      });
+
+      const dogList = await getDogs(response.resultIds);
+      console.log(dogList);
+
+      dispatch({
+        type: ACTIONS.SET_DOG_LIST,
+        payload: dogList,
       });
     };
 
     getInitialSearchResult();
-  }, []);
-  useEffect(() => {
-    async function fetchData() {
-      const baseUrl = "https://frontend-take-home-service.fetch.com";
-      const endpoint = "/dogs/breeds";
-
-      const url = baseUrl + endpoint;
-
-      const requestOptions = {
-        method: "GET",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      };
-      try {
-        const response = await fetch(url, requestOptions);
-        // console.log(response);
-        const responseBody = await response.text();
-
-        // Convert the response body to an array
-        const data = JSON.parse(responseBody);
-        // console.log(data);
-        setBreeds(data);
-      } catch (error) {
-        console.error("Error:", error);
-      }
-    }
-    fetchData();
-  }, []);
+  }, [sortOrder]);
 
   const handleBreedSelection = (breed) => {
     const updatedSelectedBreeds = new Set(selectedBreeds);
@@ -130,30 +116,34 @@ function HomePage() {
 
   const getSearchResult = async () => {
     console.log(selectedBreeds);
-    setFilterSection(false);
+    // setFilterSection(false);
+    showHideFilterSection(false);
 
     const ageMin = minAge.current.value;
     const ageMax = maxAge.current.value;
     const breedsArray = [...selectedBreeds];
-    // console.log(breedsArray);
 
     await getSearchResults(breedsArray, ageMin, ageMax, sortOrder).then(
       async (response) => {
         console.log(response);
-        if (response.next) {
-          setNextLink(response.next);
-        } else {
-          setNextLink("");
-        }
 
-        if (response.prev) {
-          setPrevLink(response.prev);
-        } else {
-          setPrevLink("");
-        }
+        dispatch({
+          type: ACTIONS.SET_NEXT_LINK,
+          payload: response.next ? response.next : "",
+        });
+
+        dispatch({
+          type: ACTIONS.SET_PREV_LINK,
+          payload: response.prev ? response.prev : "",
+        });
+
         const dogList = await getDogs(response.resultIds);
         console.log(dogList);
-        setDogList(dogList);
+
+        dispatch({
+          type: ACTIONS.SET_DOG_LIST,
+          payload: dogList,
+        });
       }
     );
   };
@@ -161,20 +151,24 @@ function HomePage() {
   const getNextPrevResults = async (link) => {
     await getNextPrevSearchResults(link).then(async (response) => {
       console.log(response);
-      if (response.next) {
-        setNextLink(response.next);
-      } else {
-        setNextLink("");
-      }
 
-      if (response.prev) {
-        setPrevLink(response.prev);
-      } else {
-        setPrevLink("");
-      }
+      dispatch({
+        type: ACTIONS.SET_NEXT_LINK,
+        payload: response.next ? response.next : "",
+      });
+
+      dispatch({
+        type: ACTIONS.SET_PREV_LINK,
+        payload: response.prev ? response.prev : "",
+      });
+
       const dogList = await getDogs(response.resultIds);
       console.log(dogList);
-      setDogList(dogList);
+
+      dispatch({
+        type: ACTIONS.SET_DOG_LIST,
+        payload: dogList,
+      });
     });
   };
 
@@ -184,25 +178,38 @@ function HomePage() {
 
   const handleLogout = async () => {
     const response = await logout();
-    console.log(response);
-    navigate("/", { replace: true });
+
+    if (response.ok) {
+      navigate("/", { replace: true });
+    } else {
+      window.alert("Error : Status Code " + response.status);
+    }
   };
+
+  const showHideFilterSection = (boolean) => {
+    dispatch({
+      type: ACTIONS.SHOW_FILTER_DROPDOWN,
+      payload: boolean,
+    });
+  };
+
   return (
-    <main className={styles["homepage__container"]}>
+    <div className={styles["homepage__container"]}>
       <header className={styles["homepage__navbar"]}>
         <h2>Welcome, {location.state.name}</h2>
         <h4 onClick={handleLogout}>Logout</h4>
       </header>
+
       {!filterSection && (
-        <h5 onClick={() => setFilterSection(true)}>Filter options</h5>
+        <h5 onClick={() => showHideFilterSection(true)}>Filter options</h5>
       )}
       {filterSection && (
         <section className={styles["homepage__filters"]}>
-          <p onClick={() => setFilterSection(false)}>close</p>
+          <p onClick={() => showHideFilterSection(false)}>close</p>
           <div className={styles["breeds__filter"]}>
             {breeds?.map((breed) => {
               return (
-                <DivComponent
+                <Breed
                   key={breed}
                   onClick={() => handleBreedSelection(breed)}
                   breed={breed}
@@ -291,7 +298,7 @@ function HomePage() {
           {">"}
         </button>
       </div>
-    </main>
+    </div>
   );
 }
 
