@@ -9,7 +9,7 @@
 
 .filter__dropdown {
   display: flex;
-  justify-content: end;
+  justify-content: flex-end;
   align-items: center;
 }
 .filter__dropdown > h5 {
